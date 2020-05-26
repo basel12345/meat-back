@@ -114,6 +114,7 @@ router.post("/registerUser", cpUpload, async (req, res) => {
         status: true,
         message: "user register",
         user,
+        token,
       });
     });
   } catch (error) {
