@@ -37,5 +37,5 @@ app.use("/auth", auth);
 app.use("/cart", cart);
 app.use("/search", search);
 
-const port = 3000;
+const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`http://localhost:${port}`));
