@@ -186,6 +186,7 @@ router.post("/registerMarket", cpUpload, async (req, res) => {
         status: true,
         message: "user register",
         user,
+        token,
       });
     });
   } catch (error) {
