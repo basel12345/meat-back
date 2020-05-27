@@ -36,9 +36,11 @@ app.use("/user", user);
 app.use("/auth", auth);
 app.use("/cart", cart);
 app.use("/search", search);
+app.use(express.static(path.join(__dirname, "./dist/angular-army")));
+
 app.get("/*", (req, res) => {
   res.send("Hello World !");
-  res.sendFile(path.join(__dirname + "/dist/index.html"));
+  res.sendFile(path.join(__dirname + "/dist/angular-army/index.html"));
 });
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`http://localhost:${port}`));
