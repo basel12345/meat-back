@@ -36,8 +36,8 @@ app.use("/user", user);
 app.use("/auth", auth);
 app.use("/cart", cart);
 app.use("/search", search);
-app.get("/", (req, res) => {
-  res.send("Hello");
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/dist/index.html"));
 });
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`http://localhost:${port}`));

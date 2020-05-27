@@ -71,6 +71,7 @@ router.post("/authUser", async (req, res) => {
       { _id: user._id, isRole: user["isRole"] },
       "jwtPrivateKey"
     );
+    console.log(user["isRole"]);
     res.send({ user, token });
   } catch (error) {
     res.status(500).send(error.message);
