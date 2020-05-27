@@ -37,6 +37,7 @@ app.use("/auth", auth);
 app.use("/cart", cart);
 app.use("/search", search);
 app.get("/*", (req, res) => {
+  res.send("Hello World !");
   res.sendFile(path.join(__dirname + "/dist/index.html"));
 });
 const port = process.env.PORT || 3000;
