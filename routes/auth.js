@@ -4,7 +4,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
 const User = require("../model/user");
-const Products = require("../model/product");
+const auth = require("../middleware/auth");
+const IsAdmin = require("../middleware/adminRole");
 
 /* ------------the route for get all users-------------- */
 router.get("/getAllUsers", async (req, res) => {
@@ -76,7 +77,7 @@ router.post("/authUser", async (req, res) => {
   }
 });
 
-router.delete("/user/:id", async (req, res) => {
+router.delete("/user/:id", [auth, IsAdmin], async (req, res) => {
   try {
     const SpecificUser = await User.findByIdAndDelete(req.params.id);
     if (!SpecificUser) return res.status(404).send("Not find this user");

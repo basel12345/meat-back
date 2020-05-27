@@ -5,7 +5,9 @@ const Joi = require("joi");
 const multer = require("multer");
 const Products = require("../model/product");
 const User = require("../model/user");
+const auth = require("../middleware/auth");
 const IsMarket = require("../middleware/marketRole");
+const IsAdmin = require("../middleware/adminRole");
 
 /* ------------start Multer-------------- */
 const storage = multer.diskStorage({
@@ -174,65 +176,70 @@ router.get("/getSpecificProduct/:id", async (req, res) => {
 });
 
 /* ------------the route for adding Product-------------- */
-router.post("/addProduct/:userId", upload.single("image"), async (req, res) => {
-  try {
-    /* search user for id */
-    const user = await User.findById(req.params.userId);
-    if (!user) return res.status(404).send("Not find this product");
-    /* start validation by joi library */
-    const schema = {
-      name: Joi.string().min(0).required(),
-      price: Joi.number().min(0).required(),
-      weight: Joi.string().min(0).required(),
-      type: Joi.string().min(0).required(),
-      description: Joi.string().min(0).required(),
-      meatType: Joi.string(),
-      //   image: Joi.required(),
-    };
-    const result = Joi.validate(req.body, schema);
-    if (result.error) {
-      return res.send({
-        status: false,
-        message: result.error.details[0].message,
-      });
-    }
-    /* end validation by joi library */
-
-    const newProduct = await new Products({
-      _id: new mongoose.Types.ObjectId(),
-      name: req.body.name,
-      price: req.body.price,
-      image: req.file.path,
-      weight: req.body.weight,
-      type: req.body.type,
-      description: req.body.description,
-      meatType: req.body.meatType,
-    });
-
-    newProduct["market"].push(user);
-    await newProduct.save((err, product) => {
-      if (err) {
-        console.log(err);
+router.post(
+  "/addProduct/:userId",
+  [auth, IsMarket],
+  upload.single("image"),
+  async (req, res) => {
+    try {
+      /* search user for id */
+      const user = await User.findById(req.params.userId);
+      if (!user) return res.status(404).send("Not find this product");
+      /* start validation by joi library */
+      const schema = {
+        name: Joi.string().min(0).required(),
+        price: Joi.number().min(0).required(),
+        weight: Joi.string().min(0).required(),
+        type: Joi.string().min(0).required(),
+        description: Joi.string().min(0).required(),
+        meatType: Joi.string(),
+        //   image: Joi.required(),
+      };
+      const result = Joi.validate(req.body, schema);
+      if (result.error) {
         return res.send({
           status: false,
-          message: err.message,
+          message: result.error.details[0].message,
         });
       }
-      res.send({
-        status: true,
-        message: "Product saved",
-        product,
+      /* end validation by joi library */
+
+      const newProduct = await new Products({
+        _id: new mongoose.Types.ObjectId(),
+        name: req.body.name,
+        price: req.body.price,
+        image: req.file.path,
+        weight: req.body.weight,
+        type: req.body.type,
+        description: req.body.description,
+        meatType: req.body.meatType,
       });
-    });
-    user["product"].push(newProduct);
-    await user.save();
-  } catch (error) {
-    res.status(500).send(error.message);
+
+      newProduct["market"].push(user);
+      await newProduct.save((err, product) => {
+        if (err) {
+          console.log(err);
+          return res.send({
+            status: false,
+            message: err.message,
+          });
+        }
+        res.send({
+          status: true,
+          message: "Product saved",
+          product,
+        });
+      });
+      user["product"].push(newProduct);
+      await user.save();
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 /* ------------the route for update Product by id-------------- */
-router.put("/UpdateProduct/:id", async (req, res) => {
+router.put("/UpdateProduct/:id", [auth, IsMarket], async (req, res) => {
   console.log(req.body);
   try {
     /* start validation by joi library */
@@ -282,17 +289,22 @@ router.put("/UpdateProduct/:id", async (req, res) => {
 });
 
 /* ------------the route for deleting Product by id-------------- */
-router.delete("/deleteProduct/:id", async (req, res) => {
-  try {
-    const SpecificProduct = await Products.findByIdAndDelete(req.params.id);
-    if (!SpecificProduct) return res.status(404).send("Not find this product");
-    return res.send({
-      sccess: true,
-      message: "Product Removed",
-    });
-  } catch (error) {
-    res.status(500).send(error.message);
+router.delete(
+  "/deleteProduct/:id",
+  [auth, IsAdmin, IsMarket],
+  async (req, res) => {
+    try {
+      const SpecificProduct = await Products.findByIdAndDelete(req.params.id);
+      if (!SpecificProduct)
+        return res.status(404).send("Not find this product");
+      return res.send({
+        sccess: true,
+        message: "Product Removed",
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 module.exports = router;

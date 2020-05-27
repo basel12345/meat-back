@@ -3,15 +3,17 @@ const Joi = require("joi");
 const router = express.Router();
 const Cart = require("../model/cart");
 const User = require("../model/user");
+const auth = require("../middleware/auth");
+const IsUser = require("../middleware/userRole");
 
 /* the route for get all Cart */
-router.get("/getAllCart", async (req, res) => {
+router.get("/getAllCart", [auth, IsUser], async (req, res) => {
   const cart = await Cart.find();
   res.send(cart);
 });
 
 /* the route for adding Cart by user id */
-router.post("/addCart/:userId", async (req, res) => {
+router.post("/addCart/:userId", [auth, IsUser], async (req, res) => {
   try {
     /* search user for id */
     const user = await User.findById(req.params.userId);
@@ -56,7 +58,7 @@ router.post("/addCart/:userId", async (req, res) => {
 });
 
 /* ------------the route for deleting Cart by id-------------- */
-router.delete("/deleteCart/:id", async (req, res) => {
+router.delete("/deleteCart/:id", [auth, IsUser], async (req, res) => {
   try {
     const cart = await Cart.findByIdAndDelete(req.params.id);
     if (!cart) return res.status(404).send("Not find this cart");

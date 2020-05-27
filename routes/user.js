@@ -5,7 +5,6 @@ const bcrypt = require("bcryptjs");
 const router = express.Router();
 const multer = require("multer");
 const User = require("../model/user");
-const IsMarket = require("../middleware/marketRole");
 
 /* ------------start Multer-------------- */
 const storage = multer.diskStorage({
