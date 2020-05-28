@@ -289,22 +289,17 @@ router.put("/UpdateProduct/:id", [auth, IsMarket], async (req, res) => {
 });
 
 /* ------------the route for deleting Product by id-------------- */
-router.delete(
-  "/deleteProduct/:id",
-  [auth, IsAdmin, IsMarket],
-  async (req, res) => {
-    try {
-      const SpecificProduct = await Products.findByIdAndDelete(req.params.id);
-      if (!SpecificProduct)
-        return res.status(404).send("Not find this product");
-      return res.send({
-        sccess: true,
-        message: "Product Removed",
-      });
-    } catch (error) {
-      res.status(500).send(error.message);
-    }
+router.delete("/deleteProduct/:id", auth, async (req, res) => {
+  try {
+    const SpecificProduct = await Products.findByIdAndDelete(req.params.id);
+    if (!SpecificProduct) return res.status(404).send("Not find this product");
+    return res.send({
+      sccess: true,
+      message: "Product Removed",
+    });
+  } catch (error) {
+    res.status(500).send(error.message);
   }
-);
+});
 
 module.exports = router;
