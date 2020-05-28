@@ -39,7 +39,6 @@ app.use("/search", search);
 app.use(express.static(path.join(__dirname, "./dist/angular-army")));
 
 app.get("/*", (req, res) => {
-  res.send("Hello World !");
   res.sendFile(path.join(__dirname + "/dist/angular-army/index.html"));
 });
 const port = process.env.PORT || 3000;
